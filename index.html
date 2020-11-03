@@ -4,50 +4,78 @@
     <meta charset="UTF-8">
     <title>Vue.js App</title>
     <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@1.4.3/dist/vuetify.min.css" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        <h1>チュートリアルToDoリスト</h1>
-        <label v-for="label in options">
-            <input type="radio"
-                v-model="current"
-                v-bind:value="label.value">{{ label.label }}
-        </label>
-        ({{ computedTodos.length }} 件を表示中)
-        <table>
-            <thead>
-                <th class="id">ID</th>
-                <th class="comment">コメント</th>
-                <th class="state">状態</th>
-                <th class="button">-</th>
-            </thead>
-            <tbody>
-                <tr v-for="item in computedTodos"
-                    v-bind:key="item.id"
-                    v-bind:class="{done:item.state}">
-                        <th>{{ item.id }}</th>
-                        <td>{{ item.comment }}</td>
-                        <td class="state">
-                            <button v-on:click="doChangeState(item)">
-                                {{ labels[item.state] }}
-                            </button>
-                        </td>
-                        <td class="button">
-                            <button v-on:click="doRemove(item)">
-                                削除
-                            </button>
-                        </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>新しい作業の追加</h2>
-        <form class="add-form" v-on:submit.prevent="doAdd">
-            コメント <input type="text" ref="comment">
-            <button type="submit">追加</button>
-        </form>
+        <v-app>
+            <v-card
+                class="mx-auto"
+                outlined>
+                <v-card-title>
+                    <h1>チュートリアルToDoリスト</h1>
+                </v-card-title>
+                <v-spacer></v-spacer>
+                <v-radio-group row v-model="current">
+                    <v-radio
+                        class="pl-3"
+                        v-for="label in options"
+                        :label="label.label"
+                        v-bind:value="label.value"
+                    >
+                    </v-radio>
+                    ({{ computedTodos.length }} 件を表示中)
+                </v-radio-group>
+                <v-data-table
+                    :headers="headers"
+                    :items="computedTodos"
+                    >
+                    <template slot="items" slot-scope="props">
+                        <tr :class="props.item.state === 1 ? 'done' : '' ">
+                            <th>{{ props.item.id }}</th>
+                            <td>{{ props.item.comment }}</td>
+                            <td>
+                                <v-btn
+                                    round
+                                    small
+                                    class="white--text"
+                                    color="light-blue accent-4"
+                                    @click="doChangeState(props.item)">
+                                    {{ labels[props.item.state] }}
+                                </v-btn>
+                            </td>
+                            <td>
+                                <v-btn
+                                    round
+                                    small
+                                    color="error"
+                                    @click="doRemove(props.item)">
+                                    削除
+                                </v-btn>
+                            </td>
+                        </tr>
+                    </template>
+                </v-data-table>
+                <v-form class="pa-3" ref="form" @submit.prevent="doAdd">
+                    <v-text-field
+                        v-model="comment"
+                        label="新しい作業の追加"
+                        :rules="[required]"
+                    ></v-text-field>
+                    <v-btn
+                        text
+                        @click="doAdd"
+                    >追加
+                    </v-btn>
+                </v-form>
+            </v-card>
+        </v-app>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@1.4.3/dist/vuetify.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

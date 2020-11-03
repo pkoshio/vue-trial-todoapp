@@ -18,26 +18,32 @@ var todoStorage = {
 var app = new Vue({
     el: '#app',
     data: {
+        headers: [
+            {text: 'ID', value: 'id', class: "light-blue--text text--accent-4 font-weight-bold"},
+            {text: 'コメント', value: 'comment', class: "light-blue--text text--accent-4 font-weight-bold"},
+            {text: '状態', value: 'state', class: "light-blue--text text--accent-4 font-weight-bold"},
+            {text: '-', value: 'deletebutton', class: "light-blue--text text--accent-4 font-weight-bold"},
+        ],
         todos: [],
         options: [
             {value: -1, label: 'すべて'},
             {value:  0, label: '作業中'},
             {value:  1, label: '完了'}
         ],
-        current: -1
+        current: -1,
+        questionList: [],
+        comment: "",
+        required: value => !!value || "入力してください",
     },
     methods: {
         doAdd: function(event, value) {
-            var comment = this.$refs.comment
-            if (!comment.value.length) {
-                return
-            }
+            var comment = this.comment
             this.todos.push({
                 id: todoStorage.uid++,
-                comment: comment.value,
+                comment: comment,
                 state: 0
             })
-            comment.value = ''
+            this.$refs.form.reset()
         },
         doChangeState: function(item) {
             item.state = item.state ? 0: 1
@@ -68,6 +74,22 @@ var app = new Vue({
             return this.options.reduce(function(a, b) {
                 return Object.assign(a, { [b.value]: b.label })
             }, {})
+        }
+    },
+    mounted() {
+        axios
+            .get('http://localhost:8000/api/')
+            .then(response => {
+                console.log("status:", response.status);
+                this.questionList = response.data
+            })
+            .catch(err => {
+                console.error(err)
+            })
+    },
+    filters: {
+        moment: function(date) {
+            return moment(date).format("YYYY/MM/DD HH:mm");
         }
     }
 })
